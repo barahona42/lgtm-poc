@@ -1,0 +1,32 @@
+volumes:
+  datamachine-logs:
+services:
+  collector:
+    container_name: collector
+    image: alpine:latest
+    environment:
+      - LOG_DIR=/var/log/datamachine
+      - COLLECTOR_ADDR=0.0.0.0
+      - COLLECTOR_PORT=8080
+      - GENERATOR_ADDR=generator
+      - GENERATOR_PORT=8081
+    entrypoint: /opt/collector
+    volumes:
+      - ./datamachine/build/bin/collector:/opt/collector
+      - datamachine-logs:/var/log/datamachine
+  generator:
+    container_name: generator
+    image: alpine:latest
+    environment:
+      - LOG_DIR=/var/log/datamachine
+      - COLLECTOR_ADDR=collector
+      - COLLECTOR_PORT=8080
+      - GENERATOR_ADDR=0.0.0.0
+      - GENERATOR_PORT=8081
+    entrypoint: /opt/generator
+    volumes:
+      - ./datamachine/build/bin/generator:/opt/generator
+      - datamachine-logs:/var/log/datamachine
+    # depends_on:
+    #   collector:
+    #     condition: service_healthy

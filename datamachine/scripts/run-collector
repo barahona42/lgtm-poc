@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+buildtime="$(date -u +%Y%m%dT%H%M%S)"
+go build -ldflags "-X "datamachine/pkg/logging.buildtime=$(date -u +%Y%m%dT%H%M%S)"" -o build/bin/collector ./cmd/collector/
+
+
+nerdctl run --rm -t -i -v ./build/bin/collector:/opt/collector -v ./.local/log/datamachine:/var/log/datamachine --env-file ./cmd/collector/env alpine:latest /opt/collector

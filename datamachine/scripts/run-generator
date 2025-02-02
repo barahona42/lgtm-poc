@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -e
+
+buildtime="$(date -u +%Y%m%dT%H%M%S)"
+go build -ldflags "-X "datamachine/pkg/logging.buildtime=$(date -u +%Y%m%dT%H%M%S)"" -o build/bin/generator ./cmd/generator/
+
+nerdctl run --rm -t -i -v ./build/bin/generator:/opt/generator -v ./.local/log/datamachine:/var/log/datamachine --env-file ./cmd/generator/env alpine:latest /opt/generator
