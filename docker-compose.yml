@@ -1,5 +1,9 @@
 volumes:
   datamachine-logs:
+  grafana-storage:
+secrets:
+  grafana_admin_password:
+    file: ./.local/grafana_admin_password
 services:
   collector:
     container_name: collector
@@ -37,3 +41,16 @@ services:
     depends_on:
       collector:
         condition: service_healthy
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    secrets:
+      - grafana_admin_password
+    environment:
+      - GF_LOG_LEVEL=info
+      - GF_PLUGINS_PREINSTALL=grafana-clock-panel, grafana-simple-json-datasource
+      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/grafana_admin_password
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    ports:
+      - 3000:3000
