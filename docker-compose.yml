@@ -24,6 +24,9 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
+    depends_on:
+      loki:
+        condition: service_healthy
   generator:
     container_name: generator
     image: alpine:latest
@@ -52,5 +55,20 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/grafana_admin_password
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./grafana-oss/datasources:/etc/grafana/provisioning/datasources
     ports:
       - 3000:3000
+    depends_on:
+      loki:
+        condition: service_healthy
+  loki:
+    container_name: loki
+    image: grafana/loki
+    # command: "-config.file=/etc/loki/loki-config.yml"
+    ports:
+      - 3100:3100
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/ready"]
+      interval: 15s
+      timeout: 15s
+      retries: 3
