@@ -3,6 +3,7 @@ package logging
 import (
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 )
 
@@ -20,4 +21,10 @@ func ConfigureSlog(file string) error {
 		With("version", buildtime)
 	slog.SetDefault(l)
 	return nil
+}
+
+func HTTPRequestLogger(r *http.Request) *slog.Logger {
+	return slog.Default().
+		WithGroup("request").
+		With("uri", r.RequestURI, "remote", r.RemoteAddr, "method", r.Method)
 }

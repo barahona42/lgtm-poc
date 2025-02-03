@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+
+set -eu
+
+__build_cmd(){
+    cmd_name="$1"
+    echo "building $cmd_name"
+    cd datamachine
+    go build -v -ldflags "-X "datamachine/pkg/logging.buildtime=$(date -u +%Y%m%dT%H%M%S)"" -o ./build/bin/$cmd_name ./cmd/$cmd_name
+    cd -
+    echo "DONE"
+    echo "=="
+}
+
+__build_cmd collector
+__build_cmd generator
+
+nerdctl compose up
